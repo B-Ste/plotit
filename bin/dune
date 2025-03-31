@@ -1,0 +1,4 @@
+(executable
+ (public_name plotit)
+ (name main)
+ (libraries plotit))
