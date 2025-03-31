@@ -2,3 +2,7 @@ _build/
 plotit.opam
 test/
 *.svg
+*.jpeg
+*.jpg
+*.JPG
+.DS_Store

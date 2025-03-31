@@ -1,4 +1,4 @@
-type svg = SVG of out_channel;;
+type svg = SVG of out_channel
 
 type svg_path_element = 
     | MOVETO of float * float
@@ -7,7 +7,7 @@ type svg_path_element =
     | LINETO of float * float
     | LINETO_REL of float * float
 
-type svg_path = SVG_PATH of svg_path_element list;;
+type svg_path = SVG_PATH of svg_path_element list
 
 let open_svg s = 
     let ch = open_out s in 
@@ -16,12 +16,12 @@ let open_svg s =
     SVG ch;;
 
 let add_path (SVG ch) (SVG_PATH el) = 
-    let print_path_element = function
-        | MOVETO (x, y) -> Printf.fprintf ch "M %.6f %.6f " x y
-        | MOVETO_REL (x, y) -> Printf.fprintf ch "m %.6f %.6f " x y
+    let print_path_element = Printf.(function
+        | MOVETO (x, y) -> fprintf ch "M %.6f %.6f " x y
+        | MOVETO_REL (x, y) -> fprintf ch "m %.6f %.6f " x y
         | CLOSEPATH -> output_string ch "z "
-        | LINETO (x, y) -> Printf.fprintf ch "L %.6f %.6f " x y
-        | LINETO_REL (x, y) -> Printf.fprintf ch "l %.6f %.6f " x y
+        | LINETO (x, y) -> fprintf ch "L %.6f %.6f " x y
+        | LINETO_REL (x, y) -> fprintf ch "l %.6f %.6f " x y)
     in let elems = List.rev el in
         output_string ch "<path d=\"";
         List.iter print_path_element elems;
@@ -33,8 +33,10 @@ let close (SVG ch) =
 
 let create_path = SVG_PATH [];;
 
-let path_moveto (SVG_PATH p) x y = SVG_PATH (MOVETO (x, y) :: p)
-let path_moveto_rel (SVG_PATH p) x y = SVG_PATH (MOVETO_REL (x, y) :: p)
-let path_closepath (SVG_PATH p) = SVG_PATH (CLOSEPATH :: p)
-let path_lineto (SVG_PATH p) x y = SVG_PATH (LINETO (x, y) :: p)
-let path_lineto_rel (SVG_PATH p) x y = SVG_PATH (LINETO_REL (x, y) :: p)
+let path_add (SVG_PATH p) e = SVG_PATH (e :: p)
+
+let path_moveto p x y = path_add p (MOVETO (x, y))
+let path_moveto_rel p x y = path_add p (MOVETO_REL (x, y))
+let path_closepath p = path_add p CLOSEPATH
+let path_lineto p x y = path_add p (LINETO (x, y))
+let path_lineto_rel p x y = path_add p (LINETO_REL (x, y))
