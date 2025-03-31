@@ -1,0 +1,3 @@
+(library
+ (name svg))
+(env (dev (flags (:standard -warn-error -A))))
