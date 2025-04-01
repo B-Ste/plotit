@@ -52,8 +52,8 @@ let path_moveto_rel p x y = path_add p (MOVETO_REL (x, y))
 (** [path_closepath p] closes SVG path [p]. *)
 let path_closepath p = path_add p CLOSEPATH
 
-(** [path_moveto p x y] appends SVG path [p] with a line path element to coordinates [(x, y)]. *)
+(** [path_lineto p x y] appends SVG path [p] with a line path element to coordinates [(x, y)]. *)
 let path_lineto p x y = path_add p (LINETO (x, y))
 
-(** [path_moveto_rel p x y] appends SVG path [p] with a relative line path element with movement [(x, y)]. *)
+(** [path_lineto_rel p x y] appends SVG path [p] with a relative line path element with movement [(x, y)]. *)
 let path_lineto_rel p x y = path_add p (LINETO_REL (x, y))
