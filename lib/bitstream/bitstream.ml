@@ -1,21 +1,29 @@
 (** Type for handeling bitstreams. *)
 type bitstream = {data: bytes; mutable pos: int; length: int}
 
-(** Type to represent constant values in bitstream. *)
+(** Type to represent constant values in bitstream. [LE] and [BE] stand for little endian and big endian,
+    respectively. *)
 type const_pattern_type = 
     | ConstUInt8 of int
     | ConstInt8 of int
-    | ConstUInt16 of int
-    | ConstInt16 of int
-    | ConstInt32 of int
+    | ConstUInt16_LE of int
+    | ConstInt16_LE of int
+    | ConstInt32_LE of int
+    | ConstUInt16_BE of int
+    | ConstInt16_BE of int
+    | ConstInt32_BE of int
 
-(** Type to represent variable values in bitstream. *)
+(** Type to represent variable values in bitstream. [LE] and [BE] stand for little endian and big endian,
+    respectively. *)
 type var_pattern_type = 
     | UInt8
     | Int8
-    | UInt16
-    | Int16
-    | Int32
+    | UInt16_LE
+    | Int16_LE
+    | Int32_LE
+    | UInt16_BE
+    | Int16_BE
+    | Int32_BE
 
 (** Type to represent any values in bitstream. *)
 type pattern_type = 
@@ -31,6 +39,7 @@ let open_bitstream s =
         {data = buf; pos = 0; length = len});;
 
 exception Bitstream_length_exception;;
+exception Invalid_int;;
 
 let get f l bs =
     if bs.pos + l <= bs.length then
@@ -43,19 +52,32 @@ let get_uint8 = get Bytes.get_uint8 1
 
 let get_int8 = get Bytes.get_int8 1
 
-let get_uint16 = get Bytes.get_uint16_ne 2
+let get_uint16_le = get Bytes.get_uint16_le 2
 
-let get_int16 = get Bytes.get_int16_ne 2
+let get_int16_le = get Bytes.get_int16_le 2
 
-let get_int32 bs = get Bytes.get_int32_ne 4 bs |> Int32.to_int
+let get_int32_le bs = get Bytes.get_int32_le 4 bs
+    |> Int32.unsigned_to_int
+    |> function | Some i -> i | None -> raise Invalid_int;;
+
+let get_uint16_be = get Bytes.get_uint16_be 2
+
+let get_int16_be = get Bytes.get_int16_be 2
+
+let get_int32_be bs = get Bytes.get_int32_be 4 bs 
+    |> Int32.unsigned_to_int
+    |> function | Some i -> i | None -> raise Invalid_int;;
 
 let match_single_var bs =
     function
     | UInt8 -> get_uint8 bs
     | Int8 -> get_int8 bs
-    | UInt16 -> get_uint16 bs
-    | Int16 -> get_int16 bs
-    | Int32 -> get_int32 bs
+    | UInt16_LE -> get_uint16_le bs
+    | Int16_LE -> get_int16_le bs
+    | Int32_LE -> get_int32_le bs
+    | UInt16_BE -> get_uint16_be bs
+    | Int16_BE -> get_int16_be bs
+    | Int32_BE -> get_int32_be bs
 
 (** [match_single_const bs p] matches a [const_pattern_type] element [p] against bitstream [bs] and returns true iff 
     the matched element is equivalent to [p]'s argument. Raises [Bitstream_length_exception] if the element is too long.*)
@@ -63,9 +85,12 @@ let match_single_const bs =
     function
     | ConstUInt8 i -> i = get_uint8 bs
     | ConstInt8 i -> i = get_int8 bs
-    | ConstUInt16 i -> i = get_uint16 bs
-    | ConstInt16 i -> i = get_int16 bs
-    | ConstInt32 i -> i = get_int32 bs
+    | ConstUInt16_LE i -> i = get_uint16_le bs
+    | ConstInt16_LE i -> i = get_int16_le bs
+    | ConstInt32_LE i -> i = get_int32_le bs
+    | ConstUInt16_BE i -> i = get_uint16_be bs
+    | ConstInt16_BE i -> i = get_int16_be bs
+    | ConstInt32_BE i -> i = get_int32_be bs
 
 exception Const_match_exception of int
 
@@ -76,9 +101,12 @@ let match_single_const_int bs =
     function
     | ConstUInt8 i -> msc get_uint8 i
     | ConstInt8 i -> msc get_int8 i
-    | ConstUInt16 i -> msc get_uint16 i
-    | ConstInt16 i -> msc get_int16 i
-    | ConstInt32 i -> msc get_int32 i
+    | ConstUInt16_LE i -> msc get_uint16_le i
+    | ConstInt16_LE i -> msc get_int16_le i
+    | ConstInt32_LE i -> msc get_int32_le i
+    | ConstUInt16_BE i -> msc get_uint16_be i
+    | ConstInt16_BE i -> msc get_int16_be i
+    | ConstInt32_BE i -> msc get_int32_be i
 
 (** [match_single bs p] matches a [pattern_type] element [p] against bitstream [bs] and returns the result. Raises 
     [Const_match_exception] if a [const_pattern_type] could not be matched and [Bitstream_length_exception] if the
