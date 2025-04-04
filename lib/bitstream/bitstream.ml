@@ -1,20 +1,28 @@
+(** Type for handeling bitstreams. *)
 type bitstream = {data: bytes; mutable pos: int; length: int}
+
+(** Type to represent constant values in bitstream. *)
 type const_pattern_type = 
     | ConstUInt8 of int
     | ConstInt8 of int
     | ConstUInt16 of int
     | ConstInt16 of int
     | ConstInt32 of int
+
+(** Type to represent variable values in bitstream. *)
 type var_pattern_type = 
     | UInt8
     | Int8
     | UInt16
     | Int16
     | Int32
+
+(** Type to represent any values in bitstream. *)
 type pattern_type = 
     | C of const_pattern_type
     | V of var_pattern_type
 
+(** [open_bitstream s] opens a bitstream from the file located at [s] and returns the according datastructure. *)
 let open_bitstream s = 
     In_channel.with_open_bin s (fun ch ->
         let len = Int64.to_int @@ In_channel.length ch in
@@ -49,6 +57,8 @@ let match_single_var bs =
     | Int16 -> get_int16 bs
     | Int32 -> get_int32 bs
 
+(** [match_single_const bs p] matches a [const_pattern_type] element [p] against bitstream [bs] and returns true iff 
+    the matched element is equivalent to [p]'s argument. Raises [Bitstream_length_exception] if the element is too long.*)
 let match_single_const bs =
     function
     | ConstUInt8 i -> i = get_uint8 bs
@@ -70,9 +80,16 @@ let match_single_const_int bs =
     | ConstInt16 i -> msc get_int16 i
     | ConstInt32 i -> msc get_int32 i
 
+(** [match_single bs p] matches a [pattern_type] element [p] against bitstream [bs] and returns the result. Raises 
+    [Const_match_exception] if a [const_pattern_type] could not be matched and [Bitstream_length_exception] if the
+    [pattern_type] element is too long. *)
 let match_single bs =
     function
     | C c -> match_single_const_int bs c
     | V v -> match_single_var bs v
 
+(** [match_pattern bs l] matches the pattern [l], which is a list of [pattern_type] elements, on bitstream [bs] and 
+    returns a list containing the matched elements. Values of [const_pattern_type] are also included in the returned list.
+    Raises [Const_match_exception] if a [const_pattern_type] could not be matched and [Bitstream_length_exception] if the
+    pattern [l] is too long. *)
 let match_pattern bs = List.map @@ match_single bs
