@@ -1,0 +1,3 @@
+(library
+ (name bitstream))
+(env (dev (flags (:standard -warn-error -A))))
