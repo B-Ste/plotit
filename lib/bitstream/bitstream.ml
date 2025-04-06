@@ -121,3 +121,8 @@ let match_single bs =
     Raises [Const_match_exception] if a [const_pattern_type] could not be matched and [Bitstream_length_exception] if the
     pattern [l] is too long. *)
 let match_pattern bs = List.map @@ match_single bs
+
+(** [match_const_pattern bs l] matches the pattern [l] of [const_pattern_type] elements on bitstream [bs] and returns true iff
+    all elements in [l] are matched. Raises [Const_match_exception] if a [const_pattern_type] could not be matched and 
+    [Bitstream_length_exception] if the pattern [l] is too long. *)
+let match_const_pattern bs l = let open List in map (match_single_const bs) l |> exists (fun x -> x = false) |> not

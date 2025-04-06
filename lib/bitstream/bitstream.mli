@@ -24,5 +24,6 @@ type pattern_type =
 val open_bitstream : string -> bitstream
 
 val match_pattern : bitstream -> pattern_type list -> int list
+val match_const_pattern : bitstream -> const_pattern_type list -> bool
 val match_single : bitstream -> pattern_type -> int
 val match_single_const : bitstream -> const_pattern_type -> bool
