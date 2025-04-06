@@ -5,4 +5,5 @@ test/
 *.jpeg
 *.jpg
 *.JPG
+*.png
 .DS_Store

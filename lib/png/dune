@@ -1,0 +1,4 @@
+(library
+ (name png)
+ (libraries image bitstream))
+(env (dev (flags (:standard -warn-error -A))))

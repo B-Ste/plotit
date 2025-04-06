@@ -22,6 +22,7 @@ type pattern_type =
     | V of var_pattern_type
 
 val open_bitstream : string -> bitstream
+val is_finished : bitstream -> bool
 
 val match_pattern : bitstream -> pattern_type list -> int list
 val match_const_pattern : bitstream -> const_pattern_type list -> bool
