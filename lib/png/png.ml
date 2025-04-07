@@ -36,20 +36,12 @@ end = struct
                 (br.data <- t;
                 br.pos <- 0;
                 read_byte br);;
+
+    let rec range a b = if a = b then [] else a :: range (a + 1) b
     
-    let read_bits br n =
-        let r = ref 0 in
-        for i = 0 to n - 1 do
-            r := Int.logor (Int.shift_left (read_bit br) i) !r
-        done;
-        !r;;
+    let read_bits br n = List.fold_left (fun a i -> Int.logor (Int.shift_left (read_bit br) i) a) 0 (range 0 n)
     
-    let read_bytes br n = 
-        let r = ref 0 in
-        for i = 0 to n - 1 do
-            r := Int.logor (Int.shift_left (read_byte br) (i * 8)) !r
-        done;
-        !r;;
+    let read_bytes br n = List.fold_left (fun a i -> Int.logor (Int.shift_left (read_byte br) (i * 8)) a) 0 (range 0 n)
 end
 
 open Bitstream
