@@ -1,0 +1,4 @@
+(library
+ (name huffman)
+ (libraries bitreader))
+(env (dev (flags (:standard -warn-error -A))))
