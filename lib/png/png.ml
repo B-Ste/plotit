@@ -1,47 +1,55 @@
-module Bitreader : sig
-    type bitreader
-    val create_bitreader : int list -> bitreader
-    val read_bit : bitreader -> int
-    val read_byte : bitreader -> int
-    val read_bits : bitreader -> int -> int
-    val read_bytes : bitreader -> int -> int
-end = struct
-    type bitreader = {mutable data: int list; mutable pos: int}
+module Zlib : sig
+    val decompress : int list -> int list
+end = struct 
+    exception Invalid_compression of string
 
-    exception Empty_bitreader
-    
-    let create_bitreader l = {data = l; pos = 0};;
-    
-    let read_bit br =
-        match br.data with
-        | [] -> raise Empty_bitreader
-        | h :: t -> let i = Int.logand h 1 in
-            if br.pos = 7 then
-                (br.data <- t;
-                br.pos <- 0; 
-                i)
-            else
-                (br.data <- Int.shift_right_logical h 1 :: t;
-                br.pos <- br.pos + 1;
-                i);;
-    
-    let rec read_byte br = 
-        match br.data with
-        | [] -> raise Empty_bitreader
-        | h :: t -> 
-            if br.pos = 0 then
-                (br.data <- t;
-                h)
-            else 
-                (br.data <- t;
-                br.pos <- 0;
-                read_byte br);;
+    let inflate_block_no_compression br out = 
+        let open Bitreader in
+        let len = read_bytes br 2 in
+        ignore @@ read_bytes br 2;
+        for _ = 1 to len do
+            out := read_byte br :: !out
+        done;;
 
-    let rec range a b = if a = b then [] else a :: range (a + 1) b
-    
-    let read_bits br n = List.fold_left (fun a i -> Int.logor (Int.shift_left (read_bit br) i) a) 0 (range 0 n)
-    
-    let read_bytes br n = List.fold_left (fun a i -> Int.logor (Int.shift_left (read_byte br) (i * 8)) a) 0 (range 0 n)
+    let inflate_block_fixed _ _ = ()
+
+    let inflate_block_dynamic _ _ = ()
+
+    let decompress l = 
+        let open Bitreader in
+        let open Int in
+        
+        (* Check header for supported features *)
+        let br = create_bitreader l in
+        let cmf = read_byte br in
+        let cm = logand cmf 0b1111 in
+        if cm <> 8 
+            then raise @@ Invalid_compression "CM != 8"
+        else 
+        let cinfo = logand (shift_right_logical cmf 4) 0b1111 in
+        if cinfo > 7 
+            then raise @@ Invalid_compression "Window-Size too large"
+        else
+        let flg = read_byte br in
+        if (cmf * 256 + flg) mod 31 <> 0 
+            then raise @@ Invalid_compression "Checksum failed"
+        else
+        if logand (shift_right_logical flg 5) 1 = 1
+            then raise @@ Invalid_compression "present dictionary not supported"
+        else
+        
+        (* Inflate algorithm *)
+        let befinal = ref 0 in
+        let out = ref [] in
+        while (!befinal = 0) do
+            befinal := read_bit br;
+            match read_bits br 2 with
+            | 0 -> inflate_block_no_compression br out
+            | 1 -> inflate_block_fixed br out
+            | 2 -> inflate_block_dynamic br out
+            | _ -> raise @@ Invalid_compression "invalid block type"
+        done;
+        List.rev !out;;
 end
 
 open Bitstream
