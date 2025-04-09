@@ -1,0 +1,4 @@
+(library
+ (name zlib)
+ (libraries bitreader))
+(env (dev (flags (:standard -warn-error -A))))

@@ -1,4 +1,4 @@
 (library
  (name png)
- (libraries image bitstream bitreader))
+ (libraries image bitstream bitreader zlib))
 (env (dev (flags (:standard -warn-error -A))))
