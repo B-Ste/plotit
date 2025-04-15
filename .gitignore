@@ -1,5 +1,4 @@
 _build/
-plotit.opam
 test/
 *.svg
 *.jpeg

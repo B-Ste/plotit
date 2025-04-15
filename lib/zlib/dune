@@ -1,4 +1,4 @@
 (library
  (name zlib)
- (libraries bitreader))
+ (libraries bitreader huffman))
 (env (dev (flags (:standard -warn-error -A))))

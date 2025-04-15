@@ -22,28 +22,34 @@ let combine = fold_left (fun a x -> 256 * a + x) 0
 
 let decode_png s = 
     let bs = open_bitstream s in
-        (* Check presence of signature and extract all chunks. *)
-        if not @@ match_const_pattern bs png_signature then raise Invalid_png;
-        let chunks = ref [] in
-        while (not @@ is_finished bs) do
-            chunks := parse_chunk bs :: !chunks;
-        done;
-        chunks := rev !chunks;
+    (* Check presence of signature and extract all chunks. *)
+    if not @@ match_const_pattern bs png_signature then raise Invalid_png;
+    let chunks = ref [] in
+    while (not @@ is_finished bs) do
+        chunks := parse_chunk bs :: !chunks;
+    done;
+    chunks := rev !chunks;
 
-        (* Check first chunk to be the header and extract contained data. *)
-        let head = hd !chunks in
-        if not @@ (head.chunk_type = [73; 72; 68; 82]) then raise Invalid_png;
-        let width = combine @@ take 4 head.content in
-        let height = combine @@ take 4 (drop 4 head.content) in
-        let bit_depth = hd (drop 8 head.content) in
-        let color_type = hd (drop 9 head.content) in
-        let compression_method = hd (drop 10 head.content) in
-        let filter_method = hd (drop 11 head.content) in
-        let interlace_metod = hd (drop 12 head.content) in
-        Printf.printf "width = %d, height = %d\n" width height;
-        Printf.printf "bit_depth = %d\n" bit_depth;
-        Printf.printf "color_type = %d\n" color_type;
-        Printf.printf "compression_metho = %d\n" compression_method;
-        Printf.printf "filter_method = %d\n" filter_method;
-        Printf.printf "interlace_method = %d\n" interlace_metod;
-        Image.({data = [||]; width = 0; height = 0});;
+    (* Check first chunk to be the header and extract contained data. *)
+    let head = hd !chunks in
+    if not @@ (head.chunk_type = [73; 72; 68; 82]) then raise Invalid_png;
+    let width = combine @@ take 4 head.content in
+    let height = combine @@ take 4 (drop 4 head.content) in
+    let bit_depth = hd (drop 8 head.content) in
+    let color_type = hd (drop 9 head.content) in
+    let compression_method = hd (drop 10 head.content) in
+    let filter_method = hd (drop 11 head.content) in
+    let interlace_metod = hd (drop 12 head.content) in
+    Printf.printf "width = %d, height = %d\n" width height;
+    Printf.printf "bit_depth = %d\n" bit_depth;
+    Printf.printf "color_type = %d\n" color_type;
+    Printf.printf "compression_metho = %d\n" compression_method;
+    Printf.printf "filter_method = %d\n" filter_method;
+    Printf.printf "interlace_method = %d\n" interlace_metod;
+    let idat = filter (fun ch -> ch.chunk_type = [73; 68; 65; 84]) !chunks
+        |> concat_map (fun ch -> ch.content) in
+    Printf.printf "lengt of data bytes = %d\n" (length idat);
+    let data = Zlib.decompress idat in
+    Printf.printf "length of decompressed data = %d\n" (length data);
+    Printf.printf "expected length of decompressed data = %d\n" (height * (1 + width * 4));
+    Image.({data = [||]; width = 0; height = 0});;
