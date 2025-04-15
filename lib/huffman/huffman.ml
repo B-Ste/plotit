@@ -16,10 +16,10 @@ let rec insert a hf c n =
     | 0 -> Leaf a
     | _ -> let b = c land (1 lsl (n - 1)) in
         match hf with
-        | Node (l, r) -> if b = 1 
+        | Node (l, r) -> if b <> 0 
             then Node (l, insert a r c (n - 1)) 
             else Node (insert a l c (n - 1), r)
-        | Empty -> if b = 1
+        | Empty -> if b <> 0 
             then Node (Empty, insert a Empty c (n - 1))
             else Node (insert a Empty c (n - 1), Empty)
         | _ -> raise @@ Huffman_failure "could not insert into huffman tree. "
