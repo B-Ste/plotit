@@ -31,11 +31,10 @@ let rec zip a b =
     | _, _ -> []
 
 let range n = 
-    let rec range_helper = 
-        function
-        | 0 -> []
-        | n -> (n - 1) :: range_helper (n - 1)
-    in List.rev (range_helper n);;
+    let rec range_acc acc a b = 
+        if a = b then a :: acc
+        else range_acc (b :: acc) a (b - 1)
+    in range_acc [] 0 (n - 1);;
 
 let rec repeat a =
     function
