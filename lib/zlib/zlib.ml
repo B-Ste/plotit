@@ -105,7 +105,7 @@ let rec inflate_block_data br literal_length_tree distance_tree out =
         let dist_sym = decode distance_tree br in
         let dist = read_bits br (distanceExtraBits.(dist_sym)) + distanceBase.(dist_sym) in
         for _ = 1 to length do
-            Dynarray.add_last out (Dynarray.get out (Dynarray.length out - dist - 1))
+            Dynarray.add_last out (Dynarray.get out (Dynarray.length out - dist))
         done;
         inflate_block_data br literal_length_tree distance_tree out);;
 
