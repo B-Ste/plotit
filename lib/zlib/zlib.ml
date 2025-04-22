@@ -96,15 +96,16 @@ let rec inflate_block_data br literal_length_tree distance_tree out =
     let sym = decode literal_length_tree br in
     if sym = 256 then ()
     else if sym <= 256 then
-        (out := sym :: !out;
-        inflate_block_data br literal_length_tree distance_tree out;)
+        (
+            Dynarray.add_last out sym;
+            inflate_block_data br literal_length_tree distance_tree out;)
     else
         (let sym_c = sym - 257 in
         let length = read_bits br (lengthExtraBits.(sym_c)) + lengthBase.(sym_c) in
         let dist_sym = decode distance_tree br in
         let dist = read_bits br (distanceExtraBits.(dist_sym)) + distanceBase.(dist_sym) in
         for _ = 1 to length do
-            out := List.nth !out (dist - 1) :: !out
+            Dynarray.add_last out (Dynarray.get out (Dynarray.length out - dist - 1))
         done;
         inflate_block_data br literal_length_tree distance_tree out);;
 
@@ -112,7 +113,7 @@ let inflate_block_no_compression br out =
     let len = read_bytes br 2 in
     ignore @@ read_bytes br 2;
     for _ = 1 to len do
-        out := read_byte br :: !out
+        Dynarray.add_last out (read_byte br)
     done;;
 
 let inflate_block_fixed br out = 
@@ -152,7 +153,7 @@ let decompress l =
     
     (* Inflate algorithm *)
     let befinal = ref 0 in
-    let out = ref [] in
+    let out = Dynarray.create () in
     while (!befinal = 0) do
         befinal := read_bit br;
         match read_bits br 2 with
@@ -161,4 +162,4 @@ let decompress l =
         | 2 -> inflate_block_dynamic br out
         | _ -> raise @@ Invalid_compression "invalid block type"
     done;
-    List.rev !out;;
+    Dynarray.to_list out;;
