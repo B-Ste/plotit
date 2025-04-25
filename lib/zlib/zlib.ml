@@ -162,4 +162,4 @@ let decompress l =
         | 2 -> inflate_block_dynamic br out
         | _ -> raise @@ Invalid_compression "invalid block type"
     done;
-    Dynarray.to_list out;;
+    out;;

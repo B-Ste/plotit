@@ -1,1 +1,1 @@
-val decompress : int list -> int list
+val decompress : int list -> int Dynarray.t

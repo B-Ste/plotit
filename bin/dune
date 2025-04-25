@@ -1,5 +1,6 @@
 (executable
  (public_name plotit)
  (name main)
- (libraries svg)
+ (libraries svg bitstream image png huffman zlib)
+ (ocamlopt_flags (:standard -O3 -g))
  )
