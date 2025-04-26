@@ -1,6 +1,7 @@
 (executable
  (public_name plotit)
  (name main)
- (libraries svg bitstream image png huffman zlib)
+ (libraries svg image png)
+ (modules main circle_approx)
  (ocamlopt_flags (:standard -O3 -g))
  )

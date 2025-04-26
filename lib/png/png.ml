@@ -52,7 +52,7 @@ let decode_png s =
     let filter_method = hd (drop 11 head.content) in
     let interlace_metod = hd (drop 12 head.content) in
     if bit_depth <> 8 || not (color_type = 6 || color_type = 2) || compression_method <> 0 || filter_method <> 0 || interlace_metod <> 0 
-        then raise @@ Invalid_png (Printf.sprintf "We only support bit-depth 8, rgba, compression method 0, filter \ 
+        then raise @@ Invalid_png (Printf.sprintf "We only support bit-depth 8, rgba, compression method 0, filter \
         method 0 and no interlacing. This is bit-depth %i, color-type %i, compression method %i, filter method %i \
         and interlacing %i" bit_depth color_type compression_method filter_method interlace_metod)
     else
