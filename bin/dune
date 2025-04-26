@@ -3,5 +3,5 @@
  (name main)
  (libraries svg image png)
  (modules main circle_approx)
- (ocamlopt_flags (:standard -O3 -g))
+ (ocamlopt_flags (:standard -O3))
  )

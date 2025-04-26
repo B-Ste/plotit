@@ -1,3 +1,4 @@
 (library
- (name image))
+ (name image)
+ (ocamlopt_flags (:standard -O3)))
 (env (dev (flags (:standard -warn-error -A))))

@@ -1,4 +1,5 @@
 (library
  (name zlib)
- (libraries bitreader huffman))
+ (libraries bitreader huffman)
+ (ocamlopt_flags (:standard -O3)))
 (env (dev (flags (:standard -warn-error -A))))
