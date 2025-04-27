@@ -14,7 +14,11 @@ let speclist_main = let open Arg in
      ("-s", String (fun s -> input_file_r := Some s), "Source image-file");
      ("-o", String (fun s -> output_file_r := Some s), "Output SVG-file")]
 
-let speclist_ca = []
+let speclist_ca = let open Arg in
+    [("-sc", Int (fun i -> Circle_approx.scale := i), "scale-down of original image");
+     ("-it", Int (fun i -> Circle_approx.iterations := i), "number of attempts to draw circle");
+     ("-r", Float (fun f -> Circle_approx.r := f), "radius of individual circles");
+     ("-rs", Float (fun f -> Circle_approx.rs := f), "random-generator scaling (affects contrast)")]
 
 let anon_fun s = 
     (match s with
