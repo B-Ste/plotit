@@ -6,5 +6,6 @@ val create_ppm : image -> string -> unit
 val map : (rgb -> rgb) -> image -> image
 
 val grayscale : rgb -> rgb
+val brightness : rgb -> float 
 
 val scale_down :  x:int -> ?y:int -> image -> image

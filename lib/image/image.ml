@@ -55,3 +55,7 @@ let scale_down ~x:x ?y:y_opt i =
             let fac = stride_y * stride_x in
         {r = !rr / fac; g = !gr / fac; b = !br / fac}
     ); width = x; height = y};;
+
+(** [brightness p] returns the brightness of rgb-value [p], calculated by 
+    0.2126 * R + 0.7152 * G + 0.0722 * B. *)
+let brightness p = 0.2126 *. Float.of_int p.r +. 0.7152 *. Float.of_int p.g +. 0.0722 *. Float.of_int p.b
