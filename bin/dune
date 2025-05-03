@@ -2,6 +2,6 @@
  (public_name plotit)
  (name main)
  (libraries svg image png)
- (modules main circle_approx)
+ (modules main circle_approx circle_matrix)
  (ocamlopt_flags (:standard -O3))
  )

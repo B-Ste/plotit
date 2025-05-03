@@ -1,8 +1,9 @@
 type image_processor_t =
     | CA
+    | CM
 
 let usage_msg = "poltit <command> -s <source> -o <output> [options]\n\
-valid values for command: 'circle'"
+valid values for command: 'circle', 'circlematrix'"
 let verbose = ref false
 let input_file_r = ref None
 let output_file_r = ref None
@@ -20,9 +21,16 @@ let speclist_ca = let open Arg in
      ("-r", Float (fun f -> Circle_approx.r := f), "radius of individual circles");
      ("-rs", Float (fun f -> Circle_approx.rs := f), "random-generator scaling (affects contrast)")]
 
+let speclist_cm = let open Arg in
+    [("-sc", Int (fun i -> Circle_matrix.vert_scale := i), "number of horizontal circles; aspect ratio is kept");
+     ("-r", Float (fun f -> Circle_matrix.r := f), "maximum radius of circles");
+     ("-rs", Float (fun f -> Circle_matrix.rs := f), "radius-scaling; affects contrast");
+     ("-t", Float (fun f -> Circle_matrix.t := f), "minimum radius to draw; all radi below will be omitted")]
+
 let anon_fun s = 
     (match s with
     | "circle" -> (image_processor := CA; speclist := speclist_main @ speclist_ca)
+    | "circlematrix" -> (image_processor := CM; speclist := speclist_main @ speclist_cm)
     | _ -> (Printf.printf "Image processor %s is unknown.\n" s; exit 5)); ()
 
 let verbose_print s = if !verbose then Printf.printf "%s" s else ()
@@ -65,7 +73,8 @@ let () =
 
     let svg_p_r = ref svg in
     (match !image_processor with
-    | CA -> svg_p_r := Circle_approx.circle_approx img svg);
+    | CA -> svg_p_r := Circle_approx.circle_approx img svg
+    | CM -> svg_p_r := Circle_matrix.circle_matrix img svg);
 
     verbose_print "Done.\n";
     verbose_print "Closing SVG-file. ";
